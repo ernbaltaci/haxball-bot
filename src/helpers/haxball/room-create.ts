@@ -1,5 +1,6 @@
 import onPlayerTeamChange from '@/haxball-events/onPlayerTeamChange';
 import onTeamGoal from '@/haxball-events/onTeamGoal';
+import onTeamVictory from '@/haxball-events/onTeamVictory';
 import { Client } from 'discord.js';
 import onPlayerChat from '../../haxball-events/onPlayerChat';
 import onPlayerJoin from '../../haxball-events/onPlayerJoin';
@@ -22,16 +23,17 @@ const createRoom = (client: Client) =>
       }) => any
     ) => {
       const room = HBInit({
-        roomName: 'RECEP TAYYİP ERDOĞAN STADYUMU',
-        maxPlayers: 16,
+        roomName: 'DENEME',
+        maxPlayers: 8,
         public: true,
         noPlayer: true,
         token: process.env.HAXBALL_TOKEN as string,
       });
 
       room.setDefaultStadium('Big');
-      room.setScoreLimit(5);
+      room.setScoreLimit(1);
       room.setTimeLimit(0);
+      room.setTeamsLock(true);
 
       //Event handler
       onPlayerChat(room, client);
@@ -39,6 +41,7 @@ const createRoom = (client: Client) =>
       onPlayerLeave(room, client);
       onPlayerTeamChange(room, client);
       onTeamGoal(room, client);
+      onTeamVictory(room, client);
       manager(client, room);
 
       room.onRoomLink = function (link: string) {
