@@ -25,7 +25,7 @@ const sendSuccessToServer = (
   message: string
 ) => {
   room.sendAnnouncement(
-    `${EmojiStore.get('success')} | ${message} `,
+    `${EmojiStore.get('tada')} | ${message}`,
     userId,
     GREEN_EMBED_COLOR,
     'bold'

@@ -11,9 +11,9 @@ for (const file of commandFiles) {
   CommandStore.set(command.default.name, command);
 }
 
-module.exports = async function (client: Client) {
+module.exports = async function (client: Client, room: any) {
   client.on("messageCreate", async (message: Message) => {
-    const prefix = process.env.PREFIX as string;
+    const prefix = process.env.BOT_PREFIX as string;
 
     if (!message.content.startsWith(prefix)) return;
 
@@ -27,7 +27,7 @@ module.exports = async function (client: Client) {
 
     try {
       // @ts-ignore:next-line
-      await command.default.func(client, message, args, player, db);
+      await command.default.func(client, message, args, room);
     } catch (error) {
       console.error(error);
     }

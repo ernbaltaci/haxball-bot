@@ -3,7 +3,9 @@ import registerUser from '@/helpers/haxball/register-user';
 import EmojiStore from '@/store/EmojiStore';
 import UserAccount from '@/store/haxball/user-account.store';
 import { Client } from 'discord.js';
-import { sendMessageToDiscord } from '../helpers/send-message-to-discord';
+import bcrypt from 'bcrypt';
+import { prisma } from '@/lib/prisma';
+import { sendWarningMessageToDiscord } from '@/helpers/send-message-to-discord';
 
 const onPlayerChat = (room: any, client: Client) => {
   room.onPlayerChat = (player: any, message: String) => {
@@ -19,14 +21,35 @@ const onPlayerChat = (room: any, client: Client) => {
     //   `${player.name} -> ${message}`
     // );
 
-    // KAYIT KISMI
+    //Acil Command
+    if (args[0] === 'acil') {
+      sendWarningMessageToDiscord(
+        client,
+        process.env.GUILD_ID as string,
+        process.env.URGENT_CHANNEL_ID as string,
+        `${player.name} -> adlı oyuncu uyarı komutunu kullandı!`
+      );
+
+      return false;
+    }
+
+    // REGISTER AREA
     if (UserAccount.get(player.name) === 'REGISTER') {
       if (args[0] === 'kayıt') {
         const password = args[1];
 
-        if (!password || password.length < 5) return;
+        if (!password || password.length < 5) {
+          sendWarningToServer(
+            room,
+            player.id,
+            `${player.name}, lütfen düzgün bir şifre giriniz. Şifre uzunluğu 5 karakterden uzun olmalıdır.`
+          );
+          return false;
+        }
 
-        registerUser(player.name, '');
+        registerUser(player, password);
+
+        UserAccount.set(player.name, 'LOGIN');
 
         room.sendAnnouncement(
           `${EmojiStore.get('check')} Sunucuya başarıyla kayıt oldun ${
@@ -36,6 +59,7 @@ const onPlayerChat = (room: any, client: Client) => {
           0x00ff00,
           'bold'
         );
+
         return false;
       }
 
@@ -48,18 +72,71 @@ const onPlayerChat = (room: any, client: Client) => {
       return false;
     }
 
-    // GİRİŞ YAPMA KISMI
+    // LOGIN AREA
     if (UserAccount.get(player.name) === 'LOGIN') {
+      // Check login message
       if (args[0] === 'giriş') {
-        UserAccount.set(player.name, true);
-        room.sendAnnouncement(
-          `${EmojiStore.get('check')} Sunucuya başarıyla giriş yaptın ${
-            player.name
-          }!`,
-          player.id,
-          0x00ff00,
-          'bold'
-        );
+        const password = args[1];
+
+        // Check user password accuracy
+        if (!password || password.length < 5) {
+          sendWarningToServer(
+            room,
+            player.id,
+            `${player.name}, lütfen düzgün bir şifre giriniz.`
+          );
+          return false;
+        }
+
+        const getUser = prisma.user
+          .findUnique({
+            where: { username: player.name },
+          })
+          .then((getUser) => {
+            if (!getUser) {
+              UserAccount.set(player.name, 'REGISTER');
+
+              room.sendAnnouncement(
+                `${EmojiStore.get('check')} Sunucuya kayıtlı değilsin, ${
+                  player.name
+                }!`,
+                player.id,
+                0x00ff00,
+                'bold'
+              );
+            }
+
+            bcrypt.compare(
+              password,
+              getUser?.password as string,
+              function (err, match) {
+                if (!match) {
+                  UserAccount.set(player.name, 'LOGIN');
+                  room.sendAnnouncement(
+                    `${EmojiStore.get(
+                      'check'
+                    )} Girdiğin şifre şifren ile uyuşmuyor, ${player.name}!`,
+                    player.id,
+                    0x00ff00,
+                    'bold'
+                  );
+
+                  return false;
+                }
+
+                UserAccount.set(player.name, 'LOGGED');
+
+                room.sendAnnouncement(
+                  `${EmojiStore.get('check')} Sunucuya başarıyla giriş yaptın ${
+                    player.name
+                  }!`,
+                  player.id,
+                  0x00ff00,
+                  'bold'
+                );
+              }
+            );
+          });
         return false;
       }
 

@@ -1,21 +1,24 @@
 import { prisma } from '@/lib/prisma';
-import UserAccount from '@/store/haxball/user-account.store';
-import { userMention } from 'discord.js';
+
+import bcrypt from 'bcrypt';
 
 const registerUser = async (player: any, password: string) => {
-  UserAccount.set(player.name, 'LOGGED');
+  const hashPassword = await bcrypt.hash(password, 10);
 
-  const getUser = await prisma.user.update({
-    where: {
-      username: player.name,
-    },
-    data: {
-      password: password,
-    },
+  try {
+    await prisma.user.create({
+      data: {
+        username: player.name,
+        password: hashPassword,
+      },
     });
-
+  } catch (error) {
+    console.log(
+      `${player.name} adlı oyuncuyu kayıt ederken bir sorun yaşandı. ${error}`
+    );
+  }
 
   return;
 };
 
-export default registerUser
+export default registerUser;

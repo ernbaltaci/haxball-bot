@@ -13,4 +13,6 @@ model User {
   username String @unique
 
   password String
+
+  banned Boolean? @default(false)
 }
