@@ -7,12 +7,24 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Role {
+  Beginner
+  HAVARI
+  ADMIN
+  VIPADMIN
+  YONETICI
+  KURUCU
+  SUNUCU_SAHIBI
+}
+
 model User {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   // Other fields
   username String @unique
 
   password String
+
+  role Role @default(Beginner)
 
   banned Boolean? @default(false)
 }

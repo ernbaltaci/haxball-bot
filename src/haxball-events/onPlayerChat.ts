@@ -9,8 +9,22 @@ import {
   sendMessageToDiscord,
   sendWarningMessageToDiscord,
 } from '@/helpers/send-message-to-discord';
+import CacheUser from '@/store/haxball/CacheUser';
 
 const MIN_PASWORD_LENGTH = process.env.MIN_PASWORD_LENGTH as unknown as number;
+
+interface USER {
+  username: string;
+  role:
+    | 'Beginner'
+    | 'HAVARI'
+    | 'ADMIN'
+    | 'VIPADMIN'
+    | 'YONETICI'
+    | 'KURUCU'
+    | 'SUNUCU_SAHIBI';
+  banned: boolean;
+}
 
 // start game function
 const startGame = (room: any) => {
@@ -26,6 +40,22 @@ const startGame = (room: any) => {
   if (isRequiredLength) room.startGame();
 };
 
+const getUser = (name: string) => {
+  const cachedUser = CacheUser.get(name);
+
+  if (cachedUser) return cachedUser;
+
+  const user = prisma.user
+    .findUnique({
+      where: { username: name },
+    })
+    .then((x) => {
+      CacheUser.set(name, x);
+
+      return x;
+    });
+};
+
 const onPlayerChat = (room: any, client: Client) => {
   room.onPlayerChat = (player: any, message: String) => {
     const args = message
@@ -39,6 +69,8 @@ const onPlayerChat = (room: any, client: Client) => {
       process.env.CHAT_LOG_CHANNEL_ID as string,
       `${player.name} -> ${message}`
     );
+
+    const user = getUser(player.name) as USER;
 
     startGame(room);
 
@@ -71,12 +103,10 @@ const onPlayerChat = (room: any, client: Client) => {
       return false;
     }
 
-    // IF LOGGED DIDN'T ANYTHINK
-
-    if (UserAccount.get(player.name) === 'LOGGED') return;
-
     // REGISTER AREA
     if (UserAccount.get(player.name) === 'REGISTER') {
+      // IF LOGGED DIDN'T ANYTHINK
+      if (UserAccount.get(player.name) === 'LOGGED') return;
       //CHECK USER IF BEFORE LOGIN
       if (UserAccount.get(player.name) === 'LOGIN') return;
 
@@ -119,6 +149,9 @@ const onPlayerChat = (room: any, client: Client) => {
 
     // LOGIN AREA
     if (UserAccount.get(player.name) === 'LOGIN') {
+      // IF LOGGED DIDN'T ANYTHINK
+      if (UserAccount.get(player.name) === 'LOGGED') return;
+
       // Check login message
       if (args[0] === 'giriş') {
         const password = args[1];
@@ -133,7 +166,7 @@ const onPlayerChat = (room: any, client: Client) => {
           return false;
         }
 
-        const getUser = prisma.user
+        prisma.user
           .findUnique({
             where: { username: player.name },
           })
@@ -194,6 +227,41 @@ const onPlayerChat = (room: any, client: Client) => {
 
       return false;
     }
+
+    let color = null;
+
+    switch (user.role) {
+      case 'Beginner':
+        color = 0xdddddd;
+        break;
+      case 'HAVARI':
+        color = '';
+        break;
+      case 'ADMIN':
+        color = '';
+        break;
+      case 'KURUCU':
+        color = '';
+        break;
+      case 'SUNUCU_SAHIBI':
+        color = '';
+        break;
+      case 'VIPADMIN':
+        color = '';
+        break;
+      case 'YONETICI':
+        color = '';
+        break;
+    }
+
+    room.sendAnnouncement(
+      `${user.role} ${player.name} -> ${message}`,
+      undefined,
+      color,
+      'normal'
+    );
+
+    return false;
   };
 };
 export default onPlayerChat;
