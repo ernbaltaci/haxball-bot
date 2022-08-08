@@ -1,7 +1,7 @@
 import { Client } from "discord.js";
-import onPlayerChat from "../haxball-events/onPlayerChat";
-import onPlayerJoin from "../haxball-events/onPlayerJoin";
-import onPlayerLeave from "../haxball-events/onPlayerLeave";
+import onPlayerChat from "../../haxball-events/onPlayerChat";
+import onPlayerJoin from "../../haxball-events/onPlayerJoin";
+import onPlayerLeave from "../../haxball-events/onPlayerLeave";
 
 const HaxballJS = require("haxball.js");
 

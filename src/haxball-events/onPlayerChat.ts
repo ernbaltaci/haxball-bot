@@ -1,7 +1,8 @@
-import registerUser from '@/helpers/register-user';
+import { sendWarningToServer } from '@/helpers/haxball/send-message-to-server';
+import registerUser from '@/helpers/haxball/register-user';
 import EmojiStore from '@/store/EmojiStore';
 import UserAccount from '@/store/haxball/user-account.store';
-import { Client, Message } from 'discord.js';
+import { Client } from 'discord.js';
 import { sendMessageToDiscord } from '../helpers/send-message-to-discord';
 
 const onPlayerChat = (room: any, client: Client) => {
@@ -21,7 +22,12 @@ const onPlayerChat = (room: any, client: Client) => {
     // KAYIT KISMI
     if (UserAccount.get(player.name) === 'REGISTER') {
       if (args[0] === 'kayıt') {
+        const password = args[1];
+
+        if (!password || password.length < 5) return;
+
         registerUser(player.name, '');
+
         room.sendAnnouncement(
           `${EmojiStore.get('check')} Sunucuya başarıyla kayıt oldun ${
             player.name
@@ -33,31 +39,34 @@ const onPlayerChat = (room: any, client: Client) => {
         return false;
       }
 
-      // GİRİŞ YAPMA KISMI
-      if (UserAccount.get(player.name) === 'LOGIN') {
-        if (args[0] === 'giriş') {
-          UserAccount.set(player.name, true);
-          room.sendAnnouncement(
-            `${EmojiStore.get('check')} Sunucuya başarıyla giriş yaptın ${
-              player.name
-            }!`,
-            player.id,
-            0x00ff00,
-            'bold'
-          );
-          return false;
-        }
+      sendWarningToServer(
+        room,
+        player.id,
+        `${player.name}, bu işlem için sunucuya kayıt olmalısın. Kayıt olmak için: !kayıt şifre`
+      );
+
+      return false;
+    }
+
+    // GİRİŞ YAPMA KISMI
+    if (UserAccount.get(player.name) === 'LOGIN') {
+      if (args[0] === 'giriş') {
+        UserAccount.set(player.name, true);
+        room.sendAnnouncement(
+          `${EmojiStore.get('check')} Sunucuya başarıyla giriş yaptın ${
+            player.name
+          }!`,
+          player.id,
+          0x00ff00,
+          'bold'
+        );
+        return false;
       }
 
-      room.sendAnnouncement(
-        `${EmojiStore.get(
-          'warning'
-        )} Bu işlem için sunucuya giriş yapman gerekli,${
-          player.name
-        }! Giriş yapabilmek için !giriş şifreniz`,
+      sendWarningToServer(
+        room,
         player.id,
-        0xff0000,
-        'bold'
+        `${player.name}, bu işlem için sunucuya giriş yapman gerekli. Giriş yapmak için: !giriş şifre`
       );
 
       return false;
