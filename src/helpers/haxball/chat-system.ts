@@ -36,7 +36,7 @@ const chatSystem = (room: any, player: any, message: String, user: any) => {
     }
 
     room.sendAnnouncement(
-      `[ ${tag} ] ${player.name} -> ${message}`,
+      `[ ${tag} ] ${player.name}: ${message}`,
       undefined,
       color,
       'normal'

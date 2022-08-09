@@ -27,6 +27,9 @@ interface USER {
     | 'KURUCU'
     | 'SUNUCU_SAHIBI';
   banned: boolean;
+  id: string;
+  isBanned: boolean;
+  isMuted: boolean;
 }
 
 const onPlayerChat = (room: any, client: Client) => {
@@ -103,15 +106,47 @@ const onPlayerChat = (room: any, client: Client) => {
       return false;
     }
 
+    const user = getUser(player.name) as USER;
+
+    if (!user) return false;
+
     sendMessageToDiscord(
       client,
       process.env.GUILD_ID as string,
       process.env.CHAT_LOG_CHANNEL_ID as string,
-      `${player.name} -> ${message}`
+      `[${user.id}] ${player.name} -> ${message}`
     );
 
-    // CHAT SYSTEM
-    const user = getUser(player.name) as USER;
+    if (user.isBanned) {
+      sendWarningMessageToDiscord(
+        client,
+        process.env.GUILD_ID as string,
+        process.env.SERVER_LOG_CHANNEL_ID as string,
+        `${player.name} -> adlı oyuncu kara listeye alındığı için sunucudan atıldı!`
+      );
+      room.kickPlayer(player.id, 'Sunucudan banlanmışsınız.');
+
+      return false;
+    }
+
+    if (user.isMuted) {
+      sendWarningMessageToDiscord(
+        client,
+        process.env.GUILD_ID as string,
+        process.env.SERVER_LOG_CHANNEL_ID as string,
+        `${player.name} -> adlı mutelenmiş kullanıcı mesaj yazdı. \n\nMesaj içeriği: ${message}!`
+      );
+
+      sendWarningToServer(
+        room,
+        player.id,
+        `Mutelendiğiniz için mesaj yazamazsınız.`
+      );
+
+      return false;
+    }
+
+    // CHAT SYSTEM for example: [TAG] {username} : Message
 
     if (user && user.username) {
       chatSystem(room, player, message, user);

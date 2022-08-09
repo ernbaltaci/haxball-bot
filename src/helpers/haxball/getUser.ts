@@ -17,7 +17,8 @@ const getUser = (name: string) => {
       const cachedUserObject = {
         username: x?.username,
         isAdmin: x?.isAdmin,
-        banned: x?.isBanned,
+        isBanned: x?.isBanned,
+        isMuted: x?.isMuted,
         role: x?.role,
         id: x?.id,
         cachedTime: Date.now() + 30_000,

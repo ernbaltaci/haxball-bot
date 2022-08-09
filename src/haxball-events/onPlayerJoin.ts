@@ -51,13 +51,6 @@ const checkUserCount = (room: any, player: any, user: any) => {
 
 const onPlayerJoin = (room: any, client: Client) => {
   room.onPlayerJoin = async (player: any) => {
-    // Send Message Info Message
-    sendMessageToDiscord(
-      client,
-      process.env.GUILD_ID as string,
-      process.env.SERVER_LOG_CHANNEL_ID as string,
-      `Sunucuya Katıldı -> ${player.name} `
-    );
 
     // check player auth key
     if (!player.auth)
@@ -70,6 +63,15 @@ const onPlayerJoin = (room: any, client: Client) => {
     const getUser = await prisma.user.findUnique({
       where: { username: player.name },
     });
+
+        // Send Message Info Message
+        sendMessageToDiscord(
+          client,
+          process.env.GUILD_ID as string,
+          process.env.SERVER_LOG_CHANNEL_ID as string,
+          `[${getUser === null ? 'N/A' : getUser.id}] Sunucuya Katıldı -> ${player.name} `
+        );
+    
 
     checkUserCount(room, player, getUser);
 
