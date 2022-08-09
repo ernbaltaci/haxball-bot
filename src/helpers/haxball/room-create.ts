@@ -23,8 +23,8 @@ const createRoom = (client: Client) =>
       }) => any
     ) => {
       const room = HBInit({
-        roomName: 'DENEME',
-        maxPlayers: 8,
+        roomName: 'NODE.JS',
+        maxPlayers: 10,
         public: true,
         noPlayer: true,
         token: process.env.HAXBALL_TOKEN as string,

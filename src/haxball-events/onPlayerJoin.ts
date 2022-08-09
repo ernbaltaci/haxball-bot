@@ -1,3 +1,4 @@
+import { playerNameFilter } from '@/helpers/haxball/filter';
 import { prisma } from '@/lib/prisma';
 import EmojiStore from '@/store/EmojiStore';
 import UserAccount from '@/store/haxball/user-account.store';
@@ -15,7 +16,7 @@ const startGame = (room: any) => {
     return room.sendAnnouncement(
       `${EmojiStore.get('info')} | Oyun ${
         requiredPlayer - playerList.length
-      } kişi sonra başlayacak.`,
+      } kişi sonra otomatik olarak başlayacaktır.`,
       null,
       process.env.BLUE_EMBED_COLOR,
       'normal'
@@ -23,13 +24,29 @@ const startGame = (room: any) => {
 
   if (!UserAccount) return;
 
-  console.log(UserAccount)
-
-  const isRequiredLength = UserAccount.filter(
-    (x: any) => x.length === 6
-  );
+  const isRequiredLength = UserAccount.filter((x: any) => x.length === 6);
 
   if (isRequiredLength) room.startGame();
+};
+
+const checkUserCount = (room: any, player: any, user: any) => {
+  const playerList = room.getPlayerList() as any[];
+
+  if (playerList.length === 9) {
+    if (!user.isAdmin || user.role !== 'HAVARI')
+      return room.kickPlayer(
+        player.id,
+        'Sunucu dolu. Doluyken giriş yapabilmek için havari ya da admin olmalısınız.'
+      );
+  }
+
+  if (playerList.length === 10) {
+    if (!user.isAdmin)
+      return room.kickPlayer(
+        player.id,
+        'Sunucu dolu. Doluyken giriş yapabilmek için admin olmalısınız.'
+      );
+  }
 };
 
 const onPlayerJoin = (room: any, client: Client) => {
@@ -54,7 +71,9 @@ const onPlayerJoin = (room: any, client: Client) => {
       where: { username: player.name },
     });
 
-    if (player.name === 'cuvas') room.setPlayerAdmin(player.id, true);
+    checkUserCount(room, player, getUser);
+
+    if (getUser?.isAdmin) room.setPlayerAdmin(player.id, true);
 
     // Check User If didn't register and set status REGISTER
 
@@ -74,11 +93,13 @@ const onPlayerJoin = (room: any, client: Client) => {
       UserAccount.set(player.name, 'REGISTER');
     }
 
+    await playerNameFilter(room, player);
+
     // Check User If didn't login and set status LOGIN
 
     if (getUser) {
       // Check User Ban Status
-      if (getUser.banned) {
+      if (getUser.isBanned) {
         sendWarningMessageToDiscord(
           client,
           process.env.GUILD_ID as string,
