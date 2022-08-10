@@ -1,5 +1,6 @@
-import { Client } from "discord.js";
-import { sendMessageToDiscord } from "../helpers/send-message-to-discord";
+import UserAccount from '@/store/haxball/user-account.store';
+import { Client } from 'discord.js';
+import { sendMessageToDiscord } from '../helpers/send-message-to-discord';
 
 const onPlayerLeave = (room: any, client: Client) => {
   room.onPlayerLeave = (player: any) => {
@@ -10,6 +11,8 @@ const onPlayerLeave = (room: any, client: Client) => {
       process.env.SERVER_LOG_CHANNEL_ID as string,
       `Sunucudan Ayrıldı -> ${player.name} `
     );
+
+    UserAccount.delete(player.name);
   };
 };
 export default onPlayerLeave;

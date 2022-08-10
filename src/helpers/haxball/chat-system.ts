@@ -27,7 +27,7 @@ const chatSystem = (room: any, player: any, message: String, user: any) => {
         tag = 'Sunucu Sahibi';
         break;
       case 'VIPADMIN':
-        color = 0x2000ff;
+        color = 0xAB65A9;
         tag = '💎 VIPADMIN';
         break;
       case 'YONETICI':

@@ -1,3 +1,5 @@
+import onGameTick from '@/haxball-events/onGameTick';
+import onPlayerBallKick from '@/haxball-events/onPlayerBallKick';
 import onPlayerTeamChange from '@/haxball-events/onPlayerTeamChange';
 import onTeamGoal from '@/haxball-events/onTeamGoal';
 import onTeamVictory from '@/haxball-events/onTeamVictory';
@@ -33,6 +35,7 @@ const createRoom = (client: Client) =>
       room.setDefaultStadium('Big');
       room.setScoreLimit(1);
       room.setTimeLimit(0);
+
       room.setTeamsLock(true);
 
       //Event handler
@@ -42,6 +45,8 @@ const createRoom = (client: Client) =>
       onPlayerTeamChange(room, client);
       onTeamGoal(room, client);
       onTeamVictory(room, client);
+      onPlayerBallKick(room, client);
+      onGameTick(room, client);
       manager(client, room);
 
       room.onRoomLink = function (link: string) {

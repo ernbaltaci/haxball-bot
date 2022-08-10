@@ -34,6 +34,7 @@ interface USER {
 
 const onPlayerChat = (room: any, client: Client) => {
   room.onPlayerChat = (player: any, message: String) => {
+
     const userLoginStatus = UserAccount.get(player.name);
 
     if (

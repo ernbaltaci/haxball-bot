@@ -13,7 +13,7 @@ const AcilCommand = {
     const embed = new EmbedBuilder({
       color: Colors.Orange,
       title: `${EmojiStore.get('warning')} | Uyarı Mesajı`,
-      description: `${user.message}`,
+      description: `Komutu kullanan: ${user.player.name}`,
       timestamp: Date.now(),
     });
 

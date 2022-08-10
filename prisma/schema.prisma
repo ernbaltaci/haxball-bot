@@ -31,4 +31,12 @@ model User {
   isBanned Boolean? @default(false)
 
   isMuted Boolean? @default(false)
+
+  playsCount Int @default(0)
+
+  goalCount  Int @default(0)
+
+  winCount   Int @default(0)
+
+  assistCpunt Int @default(0)
 }

@@ -28,8 +28,8 @@ const onPlayerTeamChange = (room: any, client: Client) => {
           )} | Bu işlem için sunucuya kayıt olmanız gerekli! \n ${EmojiStore.get(
             'resume'
           )} !kayıt şifre`,
-          null,
           changedPlayer.id,
+          0xFF0000,
           'normal'
         );
 

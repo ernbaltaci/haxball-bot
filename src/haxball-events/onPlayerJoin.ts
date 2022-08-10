@@ -7,27 +7,7 @@ import {
   sendMessageToDiscord,
   sendWarningMessageToDiscord,
 } from '../helpers/send-message-to-discord';
-
-const startGame = (room: any) => {
-  const requiredPlayer = process.env.REQUIRED_PLAYER as unknown as number;
-
-  const playerList = room.getPlayerList() as any[];
-  if (playerList.length < requiredPlayer)
-    return room.sendAnnouncement(
-      `${EmojiStore.get('info')} | Oyun ${
-        requiredPlayer - playerList.length
-      } kişi sonra otomatik olarak başlayacaktır.`,
-      null,
-      process.env.BLUE_EMBED_COLOR,
-      'normal'
-    );
-
-  if (!UserAccount) return;
-
-  const isRequiredLength = UserAccount.filter((x: any) => x.length === 6);
-
-  if (isRequiredLength) room.startGame();
-};
+import startGame from './startGame';
 
 const checkUserCount = (room: any, player: any, user: any) => {
   const playerList = room.getPlayerList() as any[];
@@ -51,27 +31,29 @@ const checkUserCount = (room: any, player: any, user: any) => {
 
 const onPlayerJoin = (room: any, client: Client) => {
   room.onPlayerJoin = async (player: any) => {
-
     // check player auth key
     if (!player.auth)
       return room.kickPlayer(player.id, 'Auth keyiniz bulunmuyor.');
 
-    // start game function
-    startGame(room);
+    const playerList = room.getPlayerList() as any[];
+    const sameUser = playerList.filter((x) => x.name === player.name);
+
+    if (sameUser.length > 1) return room.kickPlayer(player.id, 'Aynı isimide oyuncu bulunuyor.');
 
     // get user from DB
     const getUser = await prisma.user.findUnique({
       where: { username: player.name },
     });
 
-        // Send Message Info Message
-        sendMessageToDiscord(
-          client,
-          process.env.GUILD_ID as string,
-          process.env.SERVER_LOG_CHANNEL_ID as string,
-          `[${getUser === null ? 'N/A' : getUser.id}] Sunucuya Katıldı -> ${player.name} `
-        );
-    
+    // Send Message Info Message
+    sendMessageToDiscord(
+      client,
+      process.env.GUILD_ID as string,
+      process.env.SERVER_LOG_CHANNEL_ID as string,
+      `[${getUser === null ? 'N/A' : getUser.id}] Sunucuya Katıldı -> ${
+        player.name
+      } `
+    );
 
     checkUserCount(room, player, getUser);
 

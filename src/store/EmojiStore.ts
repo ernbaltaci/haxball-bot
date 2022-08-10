@@ -14,6 +14,8 @@ const EmojiStore = new Collection();
   EmojiStore.set('warning', '⚠️');
   EmojiStore.set('red_circle', '🔴');
   EmojiStore.set('blue_circle', '🔵');
+  EmojiStore.set('ball', '⚽');
+  EmojiStore.set('scream', '😱');
 }
 
 export default EmojiStore;

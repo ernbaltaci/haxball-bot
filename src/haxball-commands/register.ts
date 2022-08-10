@@ -6,6 +6,7 @@ import { Client } from 'discord.js';
 
 import bcrypt from 'bcrypt';
 import registerUser from '@/helpers/haxball/register-user';
+import startGame from '@/haxball-events/startGame';
 
 const RegisterCommand = {
   name: 'kayıt',
@@ -28,6 +29,8 @@ const RegisterCommand = {
     registerUser(player, password);
 
     UserAccount.set(player.name, 'LOGGED');
+
+    startGame(room, client, player);
 
     return room.sendAnnouncement(
       `${EmojiStore.get('check')} Sunucuya başarıyla kayıt oldun ${
