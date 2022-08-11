@@ -16,6 +16,7 @@ const EmojiStore = new Collection();
   EmojiStore.set('blue_circle', '🔵');
   EmojiStore.set('ball', '⚽');
   EmojiStore.set('scream', '😱');
+  EmojiStore.set('shoe', '👟')
 }
 
 export default EmojiStore;

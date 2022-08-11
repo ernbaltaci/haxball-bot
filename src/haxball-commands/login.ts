@@ -5,7 +5,7 @@ import UserAccount from '@/store/haxball/user-account.store';
 import { Client } from 'discord.js';
 
 import bcrypt from 'bcrypt';
-import startGame from '@/haxball-events/startGame';
+import {startGame} from '@/haxball-events/startGame';
 
 const LoginCommand = {
   name: 'giriş',

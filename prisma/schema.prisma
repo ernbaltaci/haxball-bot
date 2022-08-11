@@ -38,5 +38,5 @@ model User {
 
   winCount   Int @default(0)
 
-  assistCpunt Int @default(0)
+  assistCount Int @default(0)
 }

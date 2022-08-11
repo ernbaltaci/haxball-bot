@@ -7,7 +7,6 @@ import {
   sendMessageToDiscord,
   sendWarningMessageToDiscord,
 } from '../helpers/send-message-to-discord';
-import startGame from './startGame';
 
 const checkUserCount = (room: any, player: any, user: any) => {
   const playerList = room.getPlayerList() as any[];
@@ -38,7 +37,8 @@ const onPlayerJoin = (room: any, client: Client) => {
     const playerList = room.getPlayerList() as any[];
     const sameUser = playerList.filter((x) => x.name === player.name);
 
-    if (sameUser.length > 1) return room.kickPlayer(player.id, 'Aynı isimide oyuncu bulunuyor.');
+    if (sameUser.length > 1)
+      return room.kickPlayer(player.id, 'Aynı isimide oyuncu bulunuyor.');
 
     // get user from DB
     const getUser = await prisma.user.findUnique({

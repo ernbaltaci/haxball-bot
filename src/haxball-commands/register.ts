@@ -6,7 +6,7 @@ import { Client } from 'discord.js';
 
 import bcrypt from 'bcrypt';
 import registerUser from '@/helpers/haxball/register-user';
-import startGame from '@/haxball-events/startGame';
+import {startGame} from '@/haxball-events/startGame';
 
 const RegisterCommand = {
   name: 'kayıt',

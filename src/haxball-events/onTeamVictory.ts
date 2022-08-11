@@ -1,14 +1,14 @@
 import { sendSuccessToServer } from '@/helpers/haxball/send-message-to-server';
 import EmojiStore from '@/store/EmojiStore';
 import MatchStatus from '@/store/haxball/match-status';
+import UserAccount from '@/store/haxball/user-account.store';
 import { Client } from 'discord.js';
 import { sendMessageToDiscord } from '../helpers/send-message-to-discord';
-import startGame from './startGame';
+import getLastToucher from './getLastToucher';
+import { p3YS, startGame } from './startGame';
 
 const onTeamVictory = (room: any, client: Client) => {
   room.onTeamVictory = (scores: any) => {
-    console.log(scores, 'ON TEAM VICTORY');
-
     //if bot team score equal
     if (scores.red === scores.blue) {
       sendSuccessToServer(
@@ -47,8 +47,15 @@ const onTeamVictory = (room: any, client: Client) => {
 
     MatchStatus.set('match', 'WAITING_PLAYER');
     room.stopGame();
+    const scorer = getLastToucher(room)?.lastPlayerTouched;
 
     setTimeout(() => {
+      const loggedUserCount = UserAccount.filter((x) => x === 'LOGGED').size;
+
+      if (loggedUserCount === 3) {
+        return p3YS(room, client, scorer);
+      }
+
       startGame(room, client, null);
     }, 2_000);
   };
