@@ -32,11 +32,15 @@ model User {
 
   isMuted Boolean? @default(false)
 
-  playsCount Int @default(0)
+  playCount Int @default(0)
 
-  goalCount  Int @default(0)
-
-  winCount   Int @default(0)
+  goalCount Int @default(0)
 
   assistCount Int @default(0)
+
+  winCount  Int @default(0)
+
+  loseCount Int @default(0)
+
+  tieCount Int @default(0)
 }

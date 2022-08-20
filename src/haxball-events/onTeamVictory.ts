@@ -1,4 +1,5 @@
 import { sendSuccessToServer } from '@/helpers/haxball/send-message-to-server';
+import { prisma } from '@/lib/prisma';
 import EmojiStore from '@/store/EmojiStore';
 import MatchStatus from '@/store/haxball/match-status';
 import UserAccount from '@/store/haxball/user-account.store';
@@ -66,6 +67,24 @@ const onTeamVictory = (room: any, client: Client) => {
       const loserTeamList = playerList.filter(
         (x) => x.team !== winnerTeam && x.team !== 0
       );
+
+      winnerTeamList.forEach((x: any) => {
+        prisma.user.update({
+          where: { username: x?.name },
+          data: {
+            winCount: { increment: 1 },
+          },
+        });
+      })
+
+      loserTeamList.forEach((x: any) => {
+        prisma.user.update({
+          where: { username: x?.name },
+          data: {
+            loseCount: { increment: 1 },
+          },
+        });
+      })
 
       if (loggedUserCount === 3) return start1v1YS(room, client, winnerTeamList, loserTeamList);
       if (loggedUserCount === 5) return start2v2YS(room, client, winnerTeamList, loserTeamList);
