@@ -7,5 +7,8 @@ const onPlayerBallKick = (room: any, client: Client) => {
     
 
 };
+
+return false;
+
 };
 export default onPlayerBallKick;

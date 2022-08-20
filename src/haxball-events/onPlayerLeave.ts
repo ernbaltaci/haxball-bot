@@ -1,3 +1,4 @@
+import LoggedUser from '@/store/haxball/logged-user.store';
 import UserAccount from '@/store/haxball/user-account.store';
 import { Client } from 'discord.js';
 import { sendMessageToDiscord } from '../helpers/send-message-to-discord';
@@ -13,9 +14,18 @@ const onPlayerLeave = (room: any, client: Client) => {
       `Sunucudan Ayrıldı -> ${player.name} `
     );
 
+
+    const playerList = room.getPlayerList() as any[];
+
     startGame(room, client, null);
 
+    LoggedUser.delete(player.name);
     UserAccount.delete(player.name);
+
+    return false;
   };
+
+  return false;
+
 };
 export default onPlayerLeave;

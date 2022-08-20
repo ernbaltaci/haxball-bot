@@ -7,5 +7,8 @@ const onGameTick = (room: any, client: Client) => {
   room.onGameTick = (player: any) => {
     getLastToucher(room);
   };
+
+  return false;
+
 };
 export default onGameTick;

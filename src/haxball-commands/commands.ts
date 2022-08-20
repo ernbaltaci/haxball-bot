@@ -5,7 +5,7 @@ import { Client, Colors, EmbedBuilder, TextBasedChannel } from 'discord.js';
 
 const AllCommands = {
   name: 'komutlar',
-  isFilter: false,
+  isFilter: true,
   func: async function (client: Client, user: any, args: any[], room: any) {
     const commandListArray: any = [];
 
@@ -15,7 +15,7 @@ const AllCommands = {
 
     return room.sendAnnouncement(
       `${user.player.name} komutlar: \n${commandListArray.join('\n')}`,
-      null,
+      user.player.id,
       0xff5757,
       'small'
     );

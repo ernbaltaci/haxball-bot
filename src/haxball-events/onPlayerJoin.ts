@@ -112,5 +112,8 @@ const onPlayerJoin = (room: any, client: Client) => {
 
     console.log(UserAccount.get(player.name));
   };
+
+  return false;
+
 };
 export default onPlayerJoin;

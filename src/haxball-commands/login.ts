@@ -6,6 +6,7 @@ import { Client } from 'discord.js';
 
 import bcrypt from 'bcrypt';
 import {startGame} from '@/haxball-events/startGame';
+import LoggedUser from '@/store/haxball/logged-user.store';
 
 const LoginCommand = {
   name: 'giriş',
@@ -64,8 +65,9 @@ const LoginCommand = {
             }
 
             UserAccount.set(player.name, 'LOGGED');
+            LoggedUser.set(player.name, player);
 
-            startGame(room, client, player);
+           startGame(room, client, player);
 
            return room.sendAnnouncement(
               `${EmojiStore.get('check')} Sunucuya başarıyla giriş yaptın ${

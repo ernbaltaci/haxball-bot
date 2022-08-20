@@ -11,12 +11,16 @@ const onTeamGoal = (room: any, client: Client) => {
 
     const score = room.getScores();
 
-    if (!score) return;
+    if (!score) return false;
 
     const scorer = getLastToucher(room)?.lastPlayerTouched;
+    
     const lastTouchList = getLastToucher(room)?.lastTouchers as [
       { name: string; team: number; admin: boolean }
     ];
+
+    const assist = lastTouchList[lastTouchList.length - 1 - 1];
+
 
     let scoreStatus =
       score.red > score.blue
@@ -41,9 +45,7 @@ const onTeamGoal = (room: any, client: Client) => {
 
     sendSuccessToServer(room, undefined, `${scorerInfo} ${scoreStatus}`);
 
-    if (!scorer) return;
-
-    console.log(scorer, team)
+    if (!scorer) return false;
 
     if (scorer.team !== team)
       room.sendAnnouncement(
@@ -55,8 +57,7 @@ const onTeamGoal = (room: any, client: Client) => {
 
     const playerList = room.getPlayerList() as any[];
 
-    const assist = lastTouchList[lastTouchList.length - 1 - 1];
-    if (playerList.length < 6) return;
+    if (playerList.length < 6) return false;
 
     await prisma.user.update({
       where: { username: scorer.name },
@@ -65,6 +66,12 @@ const onTeamGoal = (room: any, client: Client) => {
       },
     });
 
+    room.sendAnnouncement(
+      `3v3 haritasi için yeteri kadar oyuncu toplandı! Harita 5 saniye içinde başlıyor.`,
+      null,
+      0x3ec70b,
+      'bold'
+    );
     prisma.user.update({
       where: { username: assist.name },
       data: {
@@ -72,7 +79,9 @@ const onTeamGoal = (room: any, client: Client) => {
       },
     });
 
-    // console.log(scorer, lastTouchList);
   };
+
+  return false;
+
 };
 export default onTeamGoal;

@@ -3,6 +3,7 @@ import onPlayerBallKick from '@/haxball-events/onPlayerBallKick';
 import onPlayerTeamChange from '@/haxball-events/onPlayerTeamChange';
 import onTeamGoal from '@/haxball-events/onTeamGoal';
 import onTeamVictory from '@/haxball-events/onTeamVictory';
+import { startGame } from '@/haxball-events/startGame';
 import { Client } from 'discord.js';
 import onPlayerChat from '../../haxball-events/onPlayerChat';
 import onPlayerJoin from '../../haxball-events/onPlayerJoin';
@@ -48,6 +49,10 @@ const createRoom = (client: Client) =>
       onPlayerBallKick(room, client);
       onGameTick(room, client);
       manager(client, room);
+
+      process.on('uncaughtException', (err) => {
+        startGame(room, client, undefined);
+      });
 
       room.onRoomLink = function (link: string) {
         console.log(`Server started on ${link}`);

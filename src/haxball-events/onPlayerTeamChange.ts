@@ -112,5 +112,8 @@ const onPlayerTeamChange = (room: any, client: Client) => {
     //     );
     // }
   };
+
+  return false
+
 };
 export default onPlayerTeamChange;

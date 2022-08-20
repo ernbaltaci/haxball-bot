@@ -154,5 +154,7 @@ const onPlayerChat = (room: any, client: Client) => {
       return false;
     }
   };
+  return false;
+
 };
 export default onPlayerChat;
