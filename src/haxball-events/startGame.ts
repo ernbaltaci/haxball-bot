@@ -26,7 +26,9 @@ const startGame = (room: any, client: Client, player: any) => {
 
   if (loggedUserCount === 1) startFor1Player(room, client);
   else if (loggedUserCount === 2) start1v1(room, client);
+  else if (loggedUserCount === 3) start1v1(room, client);
   else if (loggedUserCount === 4) start2v2(room, client);
+  else if (loggedUserCount === 5) start2v2(room, client);
   else if (loggedUserCount === 6) start3v3(room, client);
 
 
