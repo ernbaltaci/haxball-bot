@@ -8,7 +8,6 @@ const sendAnnouncement = (
   color: ColorPicker,
   style: StylePicker
 ) => {
-    console.log(emoji)
   room.sendAnnouncement(`${emoji} ${message}`, playerId, color, style);
 };
 

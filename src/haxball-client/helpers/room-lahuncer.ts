@@ -1,5 +1,6 @@
 import { Client } from 'discord.js';
 import { Headless } from 'haxball.js';
+import onPlayerChat from '../events/onPlayerChat';
 import onPlayerJoin from '../events/onPlayerJoin';
 import onRoomLink from '../events/onRoomLink';
 
@@ -19,6 +20,7 @@ const roomBuilder = (HBInit: Headless, client: Client) => {
   // EVENTS
   onRoomLink(room);
   onPlayerJoin(room, client);
+  onPlayerChat(room, client);
 };
 
 export default roomBuilder;
