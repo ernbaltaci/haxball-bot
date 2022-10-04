@@ -1,0 +1,24 @@
+import { Client } from 'discord.js';
+import { Headless } from 'haxball.js';
+import onPlayerJoin from '../events/onPlayerJoin';
+import onRoomLink from '../events/onRoomLink';
+
+const roomBuilder = (HBInit: Headless, client: Client) => {
+  const room = HBInit({
+    roomName: 'Trying',
+    maxPlayers: 10,
+    public: true,
+    noPlayer: true,
+    token: process.env.HAXBALL_TOKEN,
+  });
+
+  room.setDefaultStadium('Big');
+  room.setScoreLimit(1);
+  room.setTimeLimit(0);
+
+  // EVENTS
+  onRoomLink(room);
+  onPlayerJoin(room, client);
+};
+
+export default roomBuilder;
