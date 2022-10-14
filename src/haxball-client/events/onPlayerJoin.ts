@@ -1,6 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import PlayerStore from '@/store/player.store';
-import { AuthStatus, ColorPicker, EmojiPicker, StylePicker } from '@/types';
+import {
+  AuthStatus,
+  ColorPicker,
+  EmojiPicker,
+  PlayerInterface,
+  StylePicker,
+} from '@/types';
 import { Client } from 'discord.js';
 import LoginCommand from '../commands/login';
 import sendAnnouncement from '../helpers/room-send-announcement';
@@ -27,7 +33,7 @@ const onPlayerJoin = (room: RoomObject, client: Client) =>
       where: { username: player.name },
     });
 
-    // KULLANICININ VERİTABANINDA KAYITLI OLUP OLMADIĞINI KONTROL ETME
+    // KULLANICININ VERİTABANINDA KAYITLI OLUP OLMADIĞINI KONTROL ETME - KAYITLIYSA LOGIN DEĞİLSE KAYIT OL MESAJI
     if (!user) {
       sendAnnouncement(
         room,
@@ -37,29 +43,34 @@ const onPlayerJoin = (room: RoomObject, client: Client) =>
         ColorPicker.RED,
         StylePicker.BOLD
       );
-
-      PlayerStore.set(player.id, {
-        ...player,
-        authStatus: AuthStatus.REGISTER,
-      });
-
-      return;
+    } else {
+      sendAnnouncement(
+        room,
+        EmojiPicker.CHECK,
+        `Hoş Geldin ${player.name}! Devam edebilmek için giriş yapmalısın! Giriş yapabilmek için: ${process.env.HAXBALL_PREFIX}${LoginCommand.name}`,
+        player.id,
+        ColorPicker.GREEN,
+        StylePicker.NORMAL
+      );
     }
 
     PlayerStore.set(player.id, {
       ...player,
-      authStatus: AuthStatus.LOGIN,
+      authStatus: user ? AuthStatus.LOGIN : AuthStatus.REGISTER,
       ...user,
     });
 
-    sendAnnouncement(
-      room,
-      EmojiPicker.CHECK,
-      `Hoş Geldin ${player.name}! Devam edebilmek için giriş yapmalısın! Giriş yapabilmek için: ${process.env.HAXBALL_PREFIX}${LoginCommand.name}`,
-      player.id,
-      ColorPicker.GREEN,
-      StylePicker.NORMAL
-    );
+    setTimeout(() => {
+      const playerFromCache = PlayerStore.get(player.id) as PlayerInterface;
+
+      if (playerFromCache.authStatus === AuthStatus.LOGGED) return;
+
+      room.kickPlayer(
+        playerFromCache.id,
+        'Yeterli süre içinde giriş yapmadınız.',
+        false
+      );
+    }, 15_000);
   });
 
 export default onPlayerJoin;
