@@ -11,4 +11,4 @@ const sendAnnouncement = (
   room.sendAnnouncement(`${emoji} ${message}`, playerId, color, style);
 };
 
-export default sendAnnouncement
+export default sendAnnouncement;

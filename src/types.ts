@@ -1,7 +1,7 @@
 export enum ColorPicker {
   RED = 0xff0000,
 
-  GREEN = 0x0000ff,
+  GREEN = 0x00ff00,
 
   DEFAULT = 0xfff,
 }
@@ -18,6 +18,8 @@ export enum EmojiPicker {
   CHECK = '✅',
 
   WARNING = '⚠️',
+
+  NEW = '🆕',
 }
 
 export enum AuthStatus {
@@ -27,6 +29,7 @@ export enum AuthStatus {
 }
 export interface PlayerInterface {
   id: number;
+  haxballId: number;
   name: string;
   team: TeamID;
   admin: boolean;
@@ -46,4 +49,9 @@ export interface PlayerInterface {
   winCount: number;
   loseCount: number;
   tieCount: number;
+}
+
+export interface HaxballCommadHandlerInterface {
+  player: PlayerInterface;
+  message: string;
 }

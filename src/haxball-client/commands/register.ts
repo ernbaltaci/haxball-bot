@@ -8,12 +8,11 @@ import {
 } from '@/types';
 import { Client } from 'discord.js';
 import sendAnnouncement from '../helpers/room-send-announcement';
-
 import bcrypt from 'bcrypt';
 import PlayerStore from '@/store/player.store';
 
-const LoginCommand = {
-  name: 'giriş',
+const RegisterCommand = {
+  name: 'kayıt',
   isFilter: true,
   func: async function (
     client: Client,
@@ -25,10 +24,7 @@ const LoginCommand = {
 
     const typedPassword = args[0] as string;
 
-    if (
-      !typedPassword ||
-      typedPassword.length < parseInt(process.env.MIN_PASWORD_LENGTH as string)
-    ) {
+    if (!typedPassword || typedPassword.length < 4) {
       return sendAnnouncement(
         room,
         EmojiPicker.CROSS,
@@ -39,27 +35,23 @@ const LoginCommand = {
       );
     }
 
-    const userFromDb = await prisma.user.findUnique({
-      where: { username: player.name },
-    });
+    const hashPassword = await bcrypt.hash(typedPassword, 10);
 
-    if (!userFromDb)
-      return room.kickPlayer(
+    try {
+      await prisma.user.create({
+        data: {
+          username: player.name,
+          password: hashPassword,
+        },
+      });
+    } catch (error) {
+      room.kickPlayer(
         player.haxballId,
-        'Veritabanında gerekli bilgiler bulunamadı.',
+        'Kayıt sırasında bir sorun yaşandı.',
         false
       );
-
-    const isCorrect = await bcrypt.compare(typedPassword, userFromDb?.password);
-
-    if (!isCorrect) {
-      return sendAnnouncement(
-        room,
-        EmojiPicker.CROSS,
-        `Yanlış şifre girdin, ${player.name}`,
-        player.haxballId,
-        ColorPicker.RED,
-        StylePicker.BOLD
+      console.log(
+        `${player.name} adlı oyuncuyu kayıt ederken bir sorun yaşandı. ${error}`
       );
     }
 
@@ -70,7 +62,7 @@ const LoginCommand = {
     return sendAnnouncement(
       room,
       EmojiPicker.CHECK,
-      `Giriş başarılı, ${player.name}`,
+      `Giriş başarılı, ${player.name}!`,
       player.haxballId,
       ColorPicker.GREEN,
       StylePicker.BOLD
@@ -78,4 +70,4 @@ const LoginCommand = {
   },
 };
 
-export default LoginCommand;
+export default RegisterCommand;

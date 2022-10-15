@@ -1,3 +1,4 @@
+import sendMessageToDiscord from '@/discord-client/helpers/send-message-to-discord';
 import { prisma } from '@/lib/prisma';
 import PlayerStore from '@/store/player.store';
 import {
@@ -34,35 +35,42 @@ const onPlayerJoin = (room: RoomObject, client: Client) =>
     });
 
     // KULLANICININ VERİTABANINDA KAYITLI OLUP OLMADIĞINI KONTROL ETME - KAYITLIYSA LOGIN DEĞİLSE KAYIT OL MESAJI
-    if (!user) {
-      sendAnnouncement(
-        room,
-        EmojiPicker.CHECK,
-        `${EmojiPicker.WARNING} Hoş Geldin ${player.name}! Devam edebilmek için kayıt olmalısın! Kayıt olmak için: ${process.env.HAXBALL_PREFIX}kayıt`,
-        player.id,
-        ColorPicker.RED,
-        StylePicker.BOLD
-      );
-    } else {
-      sendAnnouncement(
-        room,
-        EmojiPicker.CHECK,
-        `Hoş Geldin ${player.name}! Devam edebilmek için giriş yapmalısın! Giriş yapabilmek için: ${process.env.HAXBALL_PREFIX}${LoginCommand.name}`,
-        player.id,
-        ColorPicker.GREEN,
-        StylePicker.NORMAL
-      );
-    }
+    sendAnnouncement(
+      room,
+      EmojiPicker.NEW,
+      user
+        ? `Hoş Geldin ${player.name}! Devam edebilmek için giriş yapmalısın! Giriş yapabilmek için: ${process.env.HAXBALL_PREFIX}${LoginCommand.name}`
+        : `${EmojiPicker.WARNING} Hoş Geldin ${player.name}! Devam edebilmek için kayıt olmalısın! Kayıt olmak için: ${process.env.HAXBALL_PREFIX}kayıt`,
+      player.id,
+      ColorPicker.RED,
+      StylePicker.BOLD
+    );
 
     PlayerStore.set(player.id, {
       ...player,
+      haxballId: player.id,
       authStatus: user ? AuthStatus.LOGIN : AuthStatus.REGISTER,
       ...user,
     });
 
-    setTimeout(() => {
-      const playerFromCache = PlayerStore.get(player.id) as PlayerInterface;
+    const playerFromCache = PlayerStore.get(player.id) as PlayerInterface;
 
+    sendMessageToDiscord(
+      client,
+      room,
+      EmojiPicker.NEW,
+      `${player.name}, odaya katıldı. (${
+        playerFromCache.authStatus === AuthStatus.LOGIN
+          ? 'Kayıtlı Oyuncu'
+          : 'Kayıtsız Oyuncu'
+      })`,
+      process.env.GUILD_ID as string,
+      process.env.GUILD_LOG_CHANNEL_ID as string,
+      ColorPicker.GREEN,
+      'message'
+    );
+
+    setTimeout(() => {
       if (playerFromCache.authStatus === AuthStatus.LOGGED) return;
 
       room.kickPlayer(
@@ -70,7 +78,7 @@ const onPlayerJoin = (room: RoomObject, client: Client) =>
         'Yeterli süre içinde giriş yapmadınız.',
         false
       );
-    }, 15_000);
+    }, parseInt(process.env.LOGIN_TIMEOUT as string));
   });
 
 export default onPlayerJoin;

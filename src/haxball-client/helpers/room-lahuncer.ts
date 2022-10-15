@@ -4,6 +4,8 @@ import onPlayerChat from '../events/onPlayerChat';
 import onPlayerJoin from '../events/onPlayerJoin';
 import onRoomLink from '../events/onRoomLink';
 
+const manager = require('../../helpers/command-handler');
+
 const roomBuilder = (HBInit: Headless, client: Client) => {
   const room = HBInit({
     roomName: 'Trying',
@@ -21,6 +23,8 @@ const roomBuilder = (HBInit: Headless, client: Client) => {
   onRoomLink(room);
   onPlayerJoin(room, client);
   onPlayerChat(room, client);
+
+  manager(client, room);
 };
 
 export default roomBuilder;
